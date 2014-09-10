@@ -1,8 +1,10 @@
 import numpy as np
 import netCDF4
 
-filelistin  = open('/d1/wayandn/Grid_data/Basin_pts/Mid/Lat_Lon_Mid_Basin.txt','r')
-filelistout = open('/d1/wayandn/Grid_data/Basin_pts/Mid/Mid.txt','w')
+#module load netcdf_4.3.2-icc_14.0.3
+
+filelistin  = open('/gscratch/esci/nicway/WRF/gridcell/SNQ','r')
+filelistout = open('/gscratch/esci/nicway/WRF/gridcell/SNQ_out.txt','w')
 
 #filelistin  = open('/d1/wayandn/Grid_data/Basin_pts/Hig/Lat_Lon_high_Basin.txt','r')
 #filelistout = open('/d1/wayandn/Grid_data/Basin_pts/Hig/Hig.txt','w')
@@ -24,14 +26,14 @@ def naive_fast(latvar,lonvar,lat0,lon0):
     iy_min,ix_min = np.unravel_index(minindex_flattened, latvals.shape)
     return str(iy_min),str(ix_min)
 
-filename = '/d1/wayandn/Grid_data/maurer12k/MAURER12K_Forcing.1994-01.nc'
+filename = '/gscratch/esci/nicway/WRF/TEST/wrfout_d4.2013120212.f12.0000'
 ncfile = netCDF4.Dataset(filename, 'r')
-latvar = ncfile.variables['lat']
-lonvar = ncfile.variables['lon']
+latvar = ncfile.variables['XLAT']
+lonvar = ncfile.variables['XLONG']
 newlat = latvar * np.ones((len(lonvar),len(latvar)))
 newlon = lonvar * np.ones((len(latvar),len(lonvar)))
 newlat = newlat.T
-newlon = (360 - newlon) * -1
+newlon = newlon.T
 
 count = 1
 for cl in filelistin:
