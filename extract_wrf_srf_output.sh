@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Load netcdf module in hyak
+module load netcdf_4.3.2-icc_14.0.3
+
 # Script extracts one grid cell at a time by looping through a list of  
 
 maindir="/d1/wayandn/Grid_data/"
