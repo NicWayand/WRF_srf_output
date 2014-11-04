@@ -2,6 +2,7 @@ import numpy as np
 import netCDF4
 
 #module load netcdf_4.3.2-icc_14.0.3
+#module load epd_7.3_2
 
 filelistin  = open('/gscratch/esci/nicway/WRF/gridcell/SNQ','r')
 filelistout = open('/gscratch/esci/nicway/WRF/gridcell/SNQ_out.txt','w')
@@ -20,7 +21,8 @@ def naive_fast(latvar,lonvar,lat0,lon0):
     # Read latitude and longitude from file into numpy arrays
     latvals = latvar[:]
     lonvals = lonvar[:]
-    ny,nx = latvals.shape
+    print latvals lonvals
+    #iny,nx = latvals.shape
     dist_sq = (latvals-lat0)**2 + (lonvals-lon0)**2
     minindex_flattened = dist_sq.argmin()  # 1D index of min element
     iy_min,ix_min = np.unravel_index(minindex_flattened, latvals.shape)
@@ -37,11 +39,11 @@ newlon = newlon.T
 
 count = 1
 for cl in filelistin:
-	#print cl
+	print cl
 	t_lon, t_lat = cl.split(',')
-	#print t_lon, t_lat
+	print t_lon, t_lat
 	iy,ix = naive_fast(newlat,newlon, float(t_lat), float(t_lon))
-	#print iy, ix
+	print iy, ix
 	filelistout.write("%s %s %s %s %s %s %s\n" % (count, iy, ix, newlat[iy,ix], newlon[iy,ix], float(t_lat), float(t_lon)))
 	count = count + 1	
 
