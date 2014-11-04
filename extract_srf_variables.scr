@@ -1,0 +1,40 @@
+#!/bin/bash
+
+#PBS -d /gscratch/snow/nicway
+#PBS -l nodes=1:ppn=16,feature=16core,mem=20gb,walltime=48:00:00
+#PBS -e /gscratch/snow/nicway
+#PBS -o /gscratch/snow/nicway
+#PBS -M nicway@u.washington.edu
+#PBS -m abe
+
+# Script to loop through many netcdf files and extract a subset of variables at a certain level
+
+# Load needed packages
+module load netcdf_4.3.2-icc_14.0.3
+module load epel_packages
+
+Inputdir="/gscratch/esci/nicway/WRF/d4/"
+Outputdir="/gscratch/snow/nicway/WRF/d4/"
+
+for d in $Inputdir*/ ; do
+    echo "$d"
+    for cf in $d/zipped/*.gz ; do
+	echo ${cf##*/}
+	# unzip file
+	gunzip -c $cf > $Outputdir"temp.nc"
+	#break
+
+	# trim and create new file
+	filename=$(basename "$cf")
+	filenameout="${filename%.*}"
+	#echo $Outputdir$filenameout".nc"
+	ncks -O -v Times,Q2,T2,PSFC,U10,V10,SNOWH,RAINNC,SNOWNC,SWDOWN,GLW $Outputdir"temp.nc" $Outputdir$filenameout".nc"
+ 	ncdump -h $Outputdir$filenameout".nc"	
+	# remove temp file
+	rm -f $Outputdir"temp.nc"
+
+    done
+done
+
+
+
