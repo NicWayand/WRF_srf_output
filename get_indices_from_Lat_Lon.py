@@ -21,21 +21,21 @@ def naive_fast(latvar,lonvar,lat0,lon0):
     # Read latitude and longitude from file into numpy arrays
     latvals = latvar[:]
     lonvals = lonvar[:]
-    print latvals lonvals
+    print latvals, lonvals
     #iny,nx = latvals.shape
     dist_sq = (latvals-lat0)**2 + (lonvals-lon0)**2
     minindex_flattened = dist_sq.argmin()  # 1D index of min element
     iy_min,ix_min = np.unravel_index(minindex_flattened, latvals.shape)
     return str(iy_min),str(ix_min)
 
-filename = '/gscratch/esci/nicway/WRF/TEST/wrfout_d4.2013120212.f12.0000'
+filename = '/gscratch/snow/nicway/WRF/Lat_long_file/wrfout_d4.2014040100.f12.0000'
 ncfile = netCDF4.Dataset(filename, 'r')
 latvar = ncfile.variables['XLAT']
 lonvar = ncfile.variables['XLONG']
-newlat = latvar * np.ones((len(lonvar),len(latvar)))
-newlon = lonvar * np.ones((len(latvar),len(lonvar)))
-newlat = newlat.T
-newlon = newlon.T
+#newlat = latvar * np.ones((len(lonvar),len(latvar)))
+#newlon = lonvar * np.ones((len(latvar),len(lonvar)))
+newlat = np.squeeze(latvar) # REmove singlton dimention (one time step)
+newlon = np.squeeze(lonvar)
 
 count = 1
 for cl in filelistin:
