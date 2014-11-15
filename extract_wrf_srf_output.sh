@@ -2,18 +2,19 @@
 
 # Load netcdf module in hyak
 module load netcdf_4.3.2-icc_14.0.3
+module load epel_packages
 
 # Script extracts one grid cell at a time by looping through a list of  
 
-maindir="/d1/wayandn/Grid_data/"
-datadir=$maindir"maurer12k/"
+maindir="/gscratch/snow/nicway/WRF/"
+datadir=$maindir"d4/"
 BASIN=$1
 
 #Lat lon indices (zero based)
 #Ilat=113
 #Ilon=34
 
-FL=$datadir"/MAU*"
+FL=$datadir"/wrfout*" # --ignore='*f24*'
 #FL=$datadir"MAURER12K_Forcing.1992-10.nc"
 I_lat_lon_list=$maindir"Basin_pts/"$BASIN"/"$BASIN".txt"
 #echo $I_lat_lon_list
@@ -25,7 +26,7 @@ do
         outpdir=$maindir"Basin_pts/"$BASIN"/"$FN"/"
         mkdir -p $outpdir
 	cd $outpdir 
-	rm -f time ppt temp q press sw lw wnd
+	rm -f time ppt temp q press sw lw u10 v10
         #rm -rv TEMP
         #rm -rv OUT
 done < $I_lat_lon_list
@@ -45,21 +46,22 @@ do
 
 		outpdir=$maindir"Basin_pts/"$BASIN"/"$FN"/"
 
-		/opt/netcdf4/bin/ncdump -t -v time $cf | sed -e '1,/data:/d' -e '$d' > $tempdir"temp1"
-		sed 's/time = //g' $tempdir"temp1" > $tempdir"temp2"
-		sed 's/"//g'       $tempdir"temp2" > $tempdir"temp3"
-		sed 's$, $\n$g'    $tempdir"temp3" > $tempdir"temp4" 
-		sed '/^$/d'        $tempdir"temp4" > $tempdir"temp5" 	
-		sed 's/    //g'    $tempdir"temp5" > $tempdir"temp6"
-		sed 's/;//g'       $tempdir"temp6" > $tempdir"time"
+		ncdump -t -v Times $cf | sed -e '1,/data:/d' -e '$d' | tail -1 > $tempdir"temp1"
+		#sed 's/Times = //g' $tempdir"temp1" > $tempdir"temp2"
+		sed 's/"//g'       $tempdir"temp1" > $tempdir"temp2"
+		#sed 's$, $\n$g'    $tempdir"temp3" > $tempdir"temp4" 
+		#sed '/^$/d'        $tempdir"temp4" > $tempdir"temp5" 	
+		#sed 's/    //g'    $tempdir"temp5" > $tempdir"temp6"
+		sed 's/;//g'       $tempdir"temp2" > $tempdir"time"
 	
-		ncks -s '%13.9f\n' -C -H -d lat,$Ilat,$Ilat -d lon,$Ilon,$Ilon -v ppt $cf > $tempdir"ppt"
-		ncks -s '%13.3f\n' -C -H -d lat,$Ilat,$Ilat -d lon,$Ilon,$Ilon -v temp $cf > $tempdir"temp"
-		ncks -s '%13.9f\n' -C -H -d lat,$Ilat,$Ilat -d lon,$Ilon,$Ilon -v q $cf > $tempdir"q"
-		ncks -s '%13.9f\n' -C -H -d lat,$Ilat,$Ilat -d lon,$Ilon,$Ilon -v press $cf > $tempdir"press"
-		ncks -s '%13.3f\n' -C -H -d lat,$Ilat,$Ilat -d lon,$Ilon,$Ilon -v sw $cf > $tempdir"sw"
-		ncks -s '%13.3f\n' -C -H -d lat,$Ilat,$Ilat -d lon,$Ilon,$Ilon -v lw $cf > $tempdir"lw"
-		ncks -s '%13.3f\n' -C -H -d lat,$Ilat,$Ilat -d lon,$Ilon,$Ilon -v wnd $cf > $tempdir"wnd"
+		ncks -s '%13.9f\n' -C -H -d south_north,$Ilat,$Ilat -d west_east,$Ilon,$Ilon -v RAINNC $cf > $tempdir"ppt"
+		ncks -s '%13.3f\n' -C -H -d south_north,$Ilat,$Ilat -d west_east,$Ilon,$Ilon -v T2 $cf > $tempdir"temp"
+		ncks -s '%13.9f\n' -C -H -d south_north,$Ilat,$Ilat -d west_east,$Ilon,$Ilon -v Q2 $cf > $tempdir"q"
+		ncks -s '%13.9f\n' -C -H -d south_north,$Ilat,$Ilat -d west_east,$Ilon,$Ilon -v PSFC $cf > $tempdir"press"
+		ncks -s '%13.3f\n' -C -H -d south_north,$Ilat,$Ilat -d west_east,$Ilon,$Ilon -v SWDOWN $cf > $tempdir"sw"
+		ncks -s '%13.3f\n' -C -H -d south_north,$Ilat,$Ilat -d west_east,$Ilon,$Ilon -v GLW $cf > $tempdir"lw"
+		ncks -s '%13.3f\n' -C -H -d south_north,$Ilat,$Ilat -d west_east,$Ilon,$Ilon -v U10 $cf > $tempdir"u10"
+                ncks -s '%13.3f\n' -C -H -d south_north,$Ilat,$Ilat -d west_east,$Ilon,$Ilon -v V10 $cf > $tempdir"v10"
 
 		cat $tempdir"time" >> $outpdir"time"
 		head -n -2 $tempdir"ppt" >> $outpdir"ppt"
@@ -68,7 +70,9 @@ do
 		head -n -2 $tempdir"press" >> $outpdir"press"
 		head -n -2 $tempdir"sw" >> $outpdir"sw"
 		head -n -2 $tempdir"lw" >> $outpdir"lw"
-		head -n -2 $tempdir"wnd" >> $outpdir"wnd"
+		head -n -2 $tempdir"v10" >> $outpdir"v10"
+		head -n -2 $tempdir"u10" >> $outpdir"u10"
+		
 
 	done < $I_lat_lon_list
 done
@@ -84,7 +88,7 @@ do
 	outpdir=$maindir"Basin_pts/"$BASIN"/"$FN"/"	
 	cd $outpdir
 
-	paste time temp ppt q press wnd sw lw > $findir"forcing_"$FN".txt"
+	paste time temp ppt q press u10 v10  sw lw > $findir"forcing_"$FN".txt"
 	cp $findir"forcing_"$FN".txt" $comdir"forcing_"$FN".txt"
 	cp $outpdir"time" $comdir"time_"$FN".txt"
 
