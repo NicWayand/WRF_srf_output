@@ -13,8 +13,9 @@
 module load netcdf_4.3.2-icc_14.0.3
 module load epel_packages
 
-Inputdir="/gscratch/esci/nicway/WRF/d4/"
-Outputdir="/gscratch/snow/nicway/WRF/d4/"
+#Inputdir="/gscratch/esci/nicway/WRF/d4/"
+Inputdir="/civil/shared/snow/nicway/WRF/download_missing/temp_new_run_files_to_add/"
+Outputdir="/gscratch/snow/nicway/WRF/re_run_files/"
 
 for d in $Inputdir*/ ; do
     echo "$d"

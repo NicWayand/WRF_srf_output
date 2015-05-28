@@ -1,14 +1,24 @@
 #!/bin/bash
 
+#PBS -d /gscratch/snow/nicway
+#PBS -l nodes=1:ppn=16,feature=16core,mem=64gb,walltime=48:00:00
+#PBS -e /gscratch/snow/nicway
+#PBS -o /gscratch/snow/nicway
+#PBS -M nicway@u.washington.edu
+#PBS -m abe
+
+
 # Load netcdf module in hyak
 module load netcdf_4.3.2-icc_14.0.3
 module load epel_packages
 
 # Script extracts one grid cell at a time by looping through a list of  
+# user supplied WRF indices
 
 maindir="/gscratch/snow/nicway/WRF/"
 datadir=$maindir"d4/"
-BASIN=$1
+#BASIN=$1
+BASIN="SNQ_pt"
 
 #Lat lon indices (zero based)
 #Ilat=113
