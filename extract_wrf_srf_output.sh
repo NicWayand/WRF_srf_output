@@ -1,52 +1,42 @@
 #!/bin/bash
 
-#PBS -d /gscratch/snow/nicway
-#PBS -l nodes=1:ppn=16,feature=16core,mem=64gb,walltime=48:00:00
-#PBS -e /gscratch/snow/nicway
-#PBS -o /gscratch/snow/nicway
-#PBS -M nicway@u.washington.edu
-#PBS -m abe
+# This script takes a list of WRF indices (from get_indices_from_Lat_Lon.py) and extracts point ascii files containing
+# multiple user defined variables
 
+# Load in your personal PBS settings (if needed)  and required modules (netcdf)
+# i.e. 
+# module load netcdf_4.3.2-icc_14.0.3
+# module load epel_packages
+./Nics_PBS_settings
 
-# Load netcdf module in hyak
-module load netcdf_4.3.2-icc_14.0.3
-module load epel_packages
-
-# Script extracts one grid cell at a time by looping through a list of  
-# user supplied WRF indices
-
+#### EDIT HERE! ####
 maindir="/gscratch/snow/nicway/WRF/"
-datadir=$maindir"d4/"
-#BASIN=$1
-BASIN="SNQ_pt"
+datadir=$maindir"d4/" # Where your WRF files are
+BASIN="SNQ_pt" # Name of your WRF indices file created by get_indices_from_Lat_Lon.py
 
-#Lat lon indices (zero based)
-#Ilat=113
-#Ilon=34
-
-FL=$datadir"/wrfout*" # --ignore='*f24*'
-#FL=$datadir"MAURER12K_Forcing.1992-10.nc"
+# Grab all files
+FL=$datadir"/wrfout*" # --ignore='*f24*' # option to ignore certain hours if needed
+# Define path to file list
 I_lat_lon_list=$maindir"Basin_pts/"$BASIN"/"$BASIN".txt"
-#echo $I_lat_lon_list
-#echo $FL
 
-# Clear all temp and output files
+# Clear all temp and output files (if script has been run before)
 while read FN Ilat Ilon cLat cLon tlat tlon
 do
         outpdir=$maindir"Basin_pts/"$BASIN"/"$FN"/"
         mkdir -p $outpdir
 	cd $outpdir 
 	rm -f time ppt temp q press sw lw u10 v10
-        #rm -rv TEMP
-        #rm -rv OUT
 done < $I_lat_lon_list
 echo Done Clearing up previous files
 
-
+# Now loop through each WRF file
+# NOTE: You may have to edit below depending on your netcdf variable names and date format
+#
 for cf in $FL
 do
 	echo $cf
-
+	# Loop through each user defined WRF grid cell/point we want, extract time series for given WRF file
+	# to the ascii file
 	while read FN Ilat Ilon cLat cLon tlat tlon
 	do
 
@@ -87,7 +77,7 @@ do
 	done < $I_lat_lon_list
 done
 
-# Merge files together
+# Merge files together (We have created indiviudal files for Air temp, RH etc, now merge to one file)
 while read FN Ilat Ilon cLat cLon tlat tlon
 do
 	findir=$maindir"Basin_pts/"$BASIN"/"$FN"/OUT/"
