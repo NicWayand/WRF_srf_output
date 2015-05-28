@@ -1,24 +1,23 @@
 #!/bin/bash
 
-#PBS -d /gscratch/snow/nicway
-#PBS -l nodes=1:ppn=16,feature=16core,mem=20gb,walltime=48:00:00
-#PBS -e /gscratch/snow/nicway
-#PBS -o /gscratch/snow/nicway
-#PBS -M nicway@u.washington.edu
-#PBS -m abe
+# Script extracts only user defined surface variables from a list of WRF netcdf files
+# Note: Currently expects WRF files are zipped within folders from forecast periods
 
-# Script to loop through many netcdf files and extract a subset of variables at a certain level
+# Load in your personal PBS settings (if needed)  and required modules (netcdf)
+# i.e.
+# module load netcdf_4.3.2-icc_14.0.3
+# module load epel_packages
+./Nics_PBS_settings
 
-# Load needed packages
-module load netcdf_4.3.2-icc_14.0.3
-module load epel_packages
+# Path to directory containing WRF files (in this case they are zipped)
+Inputdir="/gscratch/esci/nicway/WRF/d4/"
+# Path to directory where output extracted netcdf files will be put
+Outputdir="/gscratch/snow/nicway/WRF/output/"
 
-#Inputdir="/gscratch/esci/nicway/WRF/d4/"
-Inputdir="/civil/shared/snow/nicway/WRF/download_missing/temp_new_run_files_to_add/"
-Outputdir="/gscratch/snow/nicway/WRF/re_run_files/"
-
+# For each folder (containing a zip file of wrf files)
 for d in $Inputdir*/ ; do
     echo "$d"
+    # Loop through zipped files and process
     for cf in $d/zipped/*.gz ; do
 	echo ${cf##*/}
 	# unzip file
@@ -29,6 +28,7 @@ for d in $Inputdir*/ ; do
 	filename=$(basename "$cf")
 	filenameout="${filename%.*}"
 	#echo $Outputdir$filenameout".nc"
+	# EDIT HERE!: What variables you want to extract (nccdump -h WRFfile.nc to check)
 	ncks -O -v Times,Q2,T2,PSFC,U10,V10,SNOWH,RAINNC,SNOWNC,SWDOWN,GLW $Outputdir"temp.nc" $Outputdir$filenameout".nc"
  	ncdump -h $Outputdir$filenameout".nc"	
 	# remove temp file
