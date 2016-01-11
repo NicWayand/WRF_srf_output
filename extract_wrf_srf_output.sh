@@ -25,7 +25,7 @@ do
         outpdir=$maindir"Basin_pts/"$BASIN"/"$FN"/"
         mkdir -p $outpdir
 	cd $outpdir 
-	rm -f time ppt temp q press sw lw u10 v10 snownc snowh
+	rm -f time ppt temp q press sw lw u10 v10 snownc snowh snow
 done < $I_lat_lon_list
 echo Done Clearing up previous files
 
@@ -64,7 +64,7 @@ do
                 ncks -s '%13.3f\n' -C -H -d south_north,$Ilat,$Ilat -d west_east,$Ilon,$Ilon -v V10 $cf > $tempdir"v10"
                 ncks -s '%13.9f\n' -C -H -d south_north,$Ilat,$Ilat -d west_east,$Ilon,$Ilon -v SNOWNC $cf > $tempdir"snownc"
                 ncks -s '%13.3f\n' -C -H -d south_north,$Ilat,$Ilat -d west_east,$Ilon,$Ilon -v SNOWH $cf > $tempdir"snowh"
-
+		ncks -s '%13.3f\n' -C -H -d south_north,$Ilat,$Ilat -d west_east,$Ilon,$Ilon -v SNOW $cf > $tempdir"snow"
 
 		cat $tempdir"time" >> $outpdir"time"
 		head -n -2 $tempdir"ppt" >> $outpdir"ppt"
@@ -77,7 +77,7 @@ do
 		head -n -2 $tempdir"u10" >> $outpdir"u10"
                 head -n -2 $tempdir"snownc" >> $outpdir"snownc"
                 head -n -2 $tempdir"snowh" >> $outpdir"snowh"
-		
+		head -n -2 $tempdir"snow" >> $outpdir"snow"
 
 	done < $I_lat_lon_list
 done
@@ -93,7 +93,7 @@ do
 	outpdir=$maindir"Basin_pts/"$BASIN"/"$FN"/"	
 	cd $outpdir
 
-	paste time temp ppt q press u10 v10  sw lw snownc snowh > $findir"forcing_"$FN".txt"
+	paste time temp ppt q press u10 v10  sw lw snownc snowh snow > $findir"forcing_"$FN".txt"
 	cp $findir"forcing_"$FN".txt" $comdir"forcing_"$FN".txt"
 	cp $outpdir"time" $comdir"time_"$FN".txt"
 
