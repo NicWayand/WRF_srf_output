@@ -29,7 +29,7 @@ for d in $Inputdir*/ ; do
 	filenameout="${filename%.*}"
 	#echo $Outputdir$filenameout".nc"
 	# EDIT HERE!: What variables you want to extract (nccdump -h WRFfile.nc to check)
-	ncks -O -v Times,Q2,T2,PSFC,U10,V10,SNOWH,RAINNC,SNOWNC,SWDOWN,GLW $Outputdir"temp.nc" $Outputdir$filenameout".nc"
+	ncks -O -v Times,Q2,T2,PSFC,U10,V10,SNOWH,RAINNC,SNOWNC,SNOW,SWDOWN,GLW $Outputdir"temp.nc" $Outputdir$filenameout".nc"
  	ncdump -h $Outputdir$filenameout".nc"	
 	# remove temp file
 	rm -f $Outputdir"temp.nc"
